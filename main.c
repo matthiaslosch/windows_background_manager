@@ -1,9 +1,10 @@
 #include <windows.h>
 #include <stdio.h>
-#include <string.h>
 
 #define STB_DEFINE
 #include "stb.h"
+
+#define MS_IN_DAY 86400000
 
 void set_wallpaper(char *path)
 {
@@ -11,25 +12,25 @@ void set_wallpaper(char *path)
 }
 
 // argv[1]: directory path
-// argv[2]: interval
 int main(int argc, char **argv)
 {
-    if (argc < 3) {
-        fprintf(stderr, "arg1: directory path, arg2: interval in ms");
+    if (argc < 2) {
+        fprintf(stderr, "arg1: directory path");
         return 1;
     }
 
-    long interval = strtol(argv[2], NULL, 10);
-
     printf("%s\n", argv[1]);
     char **files = stb_readdir_files(argv[1]);
+    int number_of_images = stb_arr_len(files);
+
+    long interval = MS_IN_DAY / number_of_images;
 
     int i;
     size_t n;
 
     for (;;) {
-        for (i = 0; i <= stb_arr_len(files); ++i) {
-            if (i == stb_arr_len(files))
+        for (i = 0; i <= number_of_images; ++i) {
+            if (i == number_of_images)
                 i = 0;
             char *file = files[i];
             printf("%s\n", file);
