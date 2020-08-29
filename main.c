@@ -25,10 +25,11 @@ void handle_sigint(int signal)
 }
 
 // argv[1]: directory path
+// argv[2]: interval in ms
 int main(int argc, char **argv)
 {
     if (argc < 2) {
-        fprintf(stderr, "arg1: directory path");
+        fprintf(stderr, "arg1: directory path, [arg2: interval in ms]\n");
         return 1;
     }
 
@@ -38,8 +39,7 @@ int main(int argc, char **argv)
     printf("%s\n", argv[1]);
     char **files = stb_readdir_files(argv[1]);
     int number_of_images = stb_arr_len(files);
-
-    long interval = MS_IN_DAY / number_of_images;
+    long interval = argc == 3 ? strtol(argv[2], NULL, 10) : MS_IN_DAY / number_of_images;
 
     int i;
     size_t n;
