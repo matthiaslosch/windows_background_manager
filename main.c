@@ -7,6 +7,10 @@
 
 #define MS_IN_DAY 86400000
 
+#define HOURS_TO_MS(hour) (hour * 60 * 60 * 1000)
+#define MIN_TO_MS(min) (min * 60 * 1000)
+#define SEC_TO_MS(sec) (sec * 1000)
+
 static char previous_wallpaper[MAX_PATH];
 
 void set_wallpaper(char *path)
@@ -22,6 +26,17 @@ void get_current_wallpaper(char *path)
 void handle_sigint(int signal)
 {
     set_wallpaper(previous_wallpaper);
+}
+
+long interval_offset(long interval, int number_of_images, int *current_image)
+{
+    SYSTEMTIME local_time;
+    GetLocalTime(&local_time);
+    int current_time_in_ms = HOURS_TO_MS(local_time.wHour) + MIN_TO_MS(local_time.wMinute) + SEC_TO_MS(local_time.wSecond) + local_time.wMilliseconds;
+    int offset = current_time_in_ms % interval;
+    *current_image = (current_time_in_ms / interval) % number_of_images;
+
+    return offset;
 }
 
 // argv[1]: directory path
@@ -44,14 +59,22 @@ int main(int argc, char **argv)
     int i;
     size_t n;
 
+    int offset = interval_offset(interval, number_of_images, &i);
+
     for (;;) {
-        for (i = 0; i <= number_of_images; ++i) {
+        for (; i <= number_of_images; ++i) {
             if (i == number_of_images)
                 i = 0;
             char *file = files[i];
             printf("%s\n", file);
             set_wallpaper(file);
-            Sleep(interval);
+
+            if (offset) {
+                Sleep(offset);
+                offset = 0;
+            } else {
+                Sleep(interval);
+            }
         }
     }
 
