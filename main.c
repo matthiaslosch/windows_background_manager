@@ -51,13 +51,11 @@ int main(int argc, char **argv)
     get_current_wallpaper(previous_wallpaper);
     signal(SIGINT, handle_sigint);
 
-    printf("%s\n", argv[1]);
     char **files = stb_readdir_files(argv[1]);
     int number_of_images = stb_arr_len(files);
     long interval = argc == 3 ? strtol(argv[2], NULL, 10) : MS_IN_DAY / number_of_images;
 
     int i;
-    size_t n;
 
     int offset = interval_offset(interval, number_of_images, &i);
 
@@ -66,7 +64,6 @@ int main(int argc, char **argv)
             if (i == number_of_images)
                 i = 0;
             char *file = files[i];
-            printf("%s\n", file);
             set_wallpaper(file);
 
             if (offset) {
