@@ -1,14 +1,27 @@
 #include <windows.h>
 #include <stdio.h>
+#include <signal.h>
 
 #define STB_DEFINE
 #include "stb.h"
 
 #define MS_IN_DAY 86400000
 
+static char previous_wallpaper[MAX_PATH];
+
 void set_wallpaper(char *path)
 {
     SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE);
+}
+
+void get_current_wallpaper(char *path)
+{
+    SystemParametersInfoA(SPI_GETDESKWALLPAPER, 100, path, 0);
+}
+
+void handle_sigint(int signal)
+{
+    set_wallpaper(previous_wallpaper);
 }
 
 // argv[1]: directory path
@@ -18,6 +31,9 @@ int main(int argc, char **argv)
         fprintf(stderr, "arg1: directory path");
         return 1;
     }
+
+    get_current_wallpaper(previous_wallpaper);
+    signal(SIGINT, handle_sigint);
 
     printf("%s\n", argv[1]);
     char **files = stb_readdir_files(argv[1]);
