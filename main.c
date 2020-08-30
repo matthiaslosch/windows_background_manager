@@ -33,7 +33,7 @@ long interval_offset(long interval, int number_of_images, int *current_image)
     SYSTEMTIME local_time;
     GetLocalTime(&local_time);
     int current_time_in_ms = HOURS_TO_MS(local_time.wHour) + MIN_TO_MS(local_time.wMinute) + SEC_TO_MS(local_time.wSecond) + local_time.wMilliseconds;
-    int offset = current_time_in_ms % interval;
+    int offset = interval - (current_time_in_ms % interval);
     *current_image = (current_time_in_ms / interval) % number_of_images;
 
     return offset;
